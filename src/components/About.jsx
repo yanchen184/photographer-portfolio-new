@@ -7,7 +7,8 @@ gsap.registerPlugin(ScrollTrigger)
 const About = ({ language }) => {
   const sectionRef = useRef(null)
   const titleRef = useRef(null)
-  const contentRef = useRef(null)
+  const descriptionRef = useRef(null)
+  const featuresRef = useRef(null)
 
   const translations = {
     zh: {
@@ -35,7 +36,13 @@ const About = ({ language }) => {
   const t = translations[language]
 
   useEffect(() => {
-    // Animate title
+    // Set initial state
+    gsap.set([titleRef.current, descriptionRef.current], { opacity: 0, y: 30 })
+    
+    const featureItems = featuresRef.current?.querySelectorAll('.feature-item')
+    gsap.set(featureItems, { opacity: 0, y: 30 })
+
+    // Animate title when section comes into view
     gsap.to(titleRef.current, {
       scrollTrigger: {
         trigger: sectionRef.current,
@@ -45,12 +52,26 @@ const About = ({ language }) => {
       opacity: 1,
       y: 0,
       duration: 0.8,
+      ease: 'power2.out',
     })
 
-    // Animate features
-    const features = contentRef.current?.querySelectorAll('.feature-item')
-    if (features && features.length > 0) {
-      features.forEach((feature, idx) => {
+    // Animate description
+    gsap.to(descriptionRef.current, {
+      scrollTrigger: {
+        trigger: sectionRef.current,
+        start: 'top center+=100',
+        markers: false,
+      },
+      opacity: 1,
+      y: 0,
+      duration: 0.8,
+      ease: 'power2.out',
+      delay: 0.2,
+    })
+
+    // Animate features one by one
+    if (featureItems && featureItems.length > 0) {
+      featureItems.forEach((feature, idx) => {
         gsap.to(feature, {
           scrollTrigger: {
             trigger: sectionRef.current,
@@ -60,7 +81,8 @@ const About = ({ language }) => {
           opacity: 1,
           y: 0,
           duration: 0.6,
-          delay: idx * 0.1,
+          delay: 0.3 + idx * 0.1,
+          ease: 'power2.out',
         })
       })
     }
@@ -74,10 +96,7 @@ const About = ({ language }) => {
     <section ref={sectionRef} id="about" className="py-20 bg-white">
       <div className="container mx-auto px-4">
         {/* Title */}
-        <div
-          ref={titleRef}
-          className="text-center mb-16 opacity-0 translate-y-10"
-        >
+        <div ref={titleRef} className="text-center mb-16">
           <h2 className="text-5xl font-bold text-gray-900 mb-4">{t.title}</h2>
           <p className="text-xl text-gray-600">{t.subtitle}</p>
         </div>
@@ -92,17 +111,17 @@ const About = ({ language }) => {
           </div>
 
           {/* Text */}
-          <div>
+          <div ref={descriptionRef}>
             <p className="text-lg text-gray-700 leading-relaxed mb-6">{t.description}</p>
           </div>
         </div>
 
         {/* Features */}
-        <div ref={contentRef} className="grid md:grid-cols-3 gap-8">
+        <div ref={featuresRef} className="grid md:grid-cols-3 gap-8">
           {t.features.map((feature, idx) => (
             <div
               key={idx}
-              className="feature-item bg-gray-50 p-8 rounded-lg opacity-0 translate-y-10"
+              className="feature-item bg-gray-50 p-8 rounded-lg"
             >
               <h3 className="text-xl font-bold text-gray-900 mb-4">{feature.title}</h3>
               <p className="text-gray-600">{feature.desc}</p>

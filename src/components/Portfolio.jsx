@@ -7,6 +7,9 @@ gsap.registerPlugin(ScrollTrigger)
 const Portfolio = ({ language }) => {
   const [selectedCategory, setSelectedCategory] = useState('all')
   const sectionRef = useRef(null)
+  const titleRef = useRef(null)
+  const filterRef = useRef(null)
+  const galleryRef = useRef(null)
 
   const translations = {
     zh: {
@@ -43,9 +46,41 @@ const Portfolio = ({ language }) => {
     : portfolioItems.filter(item => item.category === selectedCategory)
 
   useEffect(() => {
-    // Animate items on scroll
-    const items = sectionRef.current?.querySelectorAll('.portfolio-item')
+    // Set initial state
+    gsap.set(titleRef.current, { opacity: 0, y: 30 })
+    gsap.set(filterRef.current, { opacity: 0, y: 20 })
+
+    // Animate title
+    gsap.to(titleRef.current, {
+      scrollTrigger: {
+        trigger: sectionRef.current,
+        start: 'top center+=100',
+        markers: false,
+      },
+      opacity: 1,
+      y: 0,
+      duration: 0.8,
+      ease: 'power2.out',
+    })
+
+    // Animate filter buttons
+    gsap.to(filterRef.current, {
+      scrollTrigger: {
+        trigger: sectionRef.current,
+        start: 'top center+=100',
+        markers: false,
+      },
+      opacity: 1,
+      y: 0,
+      duration: 0.6,
+      ease: 'power2.out',
+      delay: 0.2,
+    })
+
+    // Animate gallery items
+    const items = galleryRef.current?.querySelectorAll('.portfolio-item')
     if (items && items.length > 0) {
+      gsap.set(items, { opacity: 0, y: 30 })
       items.forEach((item, idx) => {
         gsap.to(item, {
           scrollTrigger: {
@@ -56,7 +91,8 @@ const Portfolio = ({ language }) => {
           opacity: 1,
           y: 0,
           duration: 0.6,
-          delay: idx * 0.05,
+          delay: 0.3 + idx * 0.05,
+          ease: 'power2.out',
         })
       })
     }
@@ -70,13 +106,13 @@ const Portfolio = ({ language }) => {
     <section ref={sectionRef} id="portfolio" className="py-20 bg-gray-50">
       <div className="container mx-auto px-4">
         {/* Title */}
-        <div className="text-center mb-16">
+        <div ref={titleRef} className="text-center mb-16">
           <h2 className="text-5xl font-bold text-gray-900 mb-4">{t.title}</h2>
           <p className="text-xl text-gray-600">{t.subtitle}</p>
         </div>
 
         {/* Category Filter */}
-        <div className="flex justify-center gap-4 mb-12 flex-wrap">
+        <div ref={filterRef} className="flex justify-center gap-4 mb-12 flex-wrap">
           {['all', 'wedding', 'portrait', 'commercial'].map((cat) => (
             <button
               key={cat}
@@ -93,11 +129,11 @@ const Portfolio = ({ language }) => {
         </div>
 
         {/* Gallery */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div ref={galleryRef} className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
           {filteredItems.map((item) => (
             <div
               key={item.id}
-              className={`portfolio-item ${item.bgColor} rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow h-64 flex items-center justify-center cursor-pointer group opacity-0 translate-y-10`}
+              className={`portfolio-item ${item.bgColor} rounded-lg overflow-hidden shadow-md hover:shadow-lg transition-shadow h-64 flex items-center justify-center cursor-pointer group`}
             >
               <div className="text-center">
                 <h3 className="text-xl font-bold text-gray-900 group-hover:text-gray-700 transition-colors">{item.title}</h3>

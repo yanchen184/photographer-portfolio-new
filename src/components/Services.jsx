@@ -1,7 +1,15 @@
-import { motion } from 'framer-motion'
+import { useRef, useEffect } from 'react'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { FaCamera, FaHeart, FaBriefcase, FaStar } from 'react-icons/fa'
 
+gsap.registerPlugin(ScrollTrigger)
+
 const Services = ({ language }) => {
+  const sectionRef = useRef(null)
+  const titleRef = useRef(null)
+  const servicesRef = useRef(null)
+
   const translations = {
     zh: {
       title: '服務項目',
@@ -58,56 +66,66 @@ const Services = ({ language }) => {
     },
   ]
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-      },
-    },
-  }
+  useEffect(() => {
+    // Set initial state
+    gsap.set(titleRef.current, { opacity: 0, y: 30 })
+    gsap.set(servicesRef.current?.querySelectorAll('.service-card'), { opacity: 0, y: 30 })
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
+    // Animate title
+    gsap.to(titleRef.current, {
+      scrollTrigger: {
+        trigger: sectionRef.current,
+        start: 'top center+=100',
+        markers: false,
+      },
       opacity: 1,
       y: 0,
-      transition: { duration: 0.6 },
-    },
-  }
+      duration: 0.8,
+      ease: 'power2.out',
+    })
+
+    // Animate service cards
+    const serviceCards = servicesRef.current?.querySelectorAll('.service-card')
+    if (serviceCards && serviceCards.length > 0) {
+      serviceCards.forEach((card, idx) => {
+        gsap.to(card, {
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top center+=100',
+            markers: false,
+          },
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          delay: 0.2 + idx * 0.1,
+          ease: 'power2.out',
+        })
+      })
+    }
+
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill())
+    }
+  }, [])
 
   return (
-    <section id="services" className="py-20 bg-gray-50">
+    <section ref={sectionRef} id="services" className="py-20 bg-gray-50">
       <div className="container mx-auto px-4">
         {/* Section Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-16"
-        >
+        <div ref={titleRef} className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-4">{t.title}</h2>
           <p className="text-xl text-gray-600 mb-8">{t.subtitle}</p>
           <div className="w-20 h-1 bg-gradient-to-r from-purple-600 to-pink-600 mx-auto" />
-        </motion.div>
+        </div>
 
         {/* Services Grid */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-100px' }}
-          className="grid md:grid-cols-2 lg:grid-cols-4 gap-8"
-        >
+        <div ref={servicesRef} className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
           {services.map((service, idx) => {
             const Icon = service.icon
             return (
-              <motion.div
+              <div
                 key={idx}
-                variants={itemVariants}
-                whileHover={{ y: -15, scale: 1.05 }}
-                className="bg-white rounded-lg shadow-lg p-8 text-center group cursor-pointer overflow-hidden relative"
+                className="service-card bg-white rounded-lg shadow-lg p-8 text-center group cursor-pointer overflow-hidden relative hover:shadow-xl transition-shadow"
               >
                 {/* Background gradient on hover */}
                 <div className={`absolute inset-0 bg-gradient-to-br ${service.gradient} opacity-0 group-hover:opacity-5 transition-opacity`} />
@@ -122,10 +140,10 @@ const Services = ({ language }) => {
 
                 {/* Description */}
                 <p className="text-gray-600 relative z-10">{service.description}</p>
-              </motion.div>
+              </div>
             )
           })}
-        </motion.div>
+        </div>
       </div>
     </section>
   )

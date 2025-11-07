@@ -1,5 +1,9 @@
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import { FaPhone, FaEnvelope, FaMapMarkerAlt } from 'react-icons/fa'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
+
+gsap.registerPlugin(ScrollTrigger)
 
 const Contact = ({ language }) => {
   const [formData, setFormData] = useState({
@@ -9,6 +13,10 @@ const Contact = ({ language }) => {
     message: '',
   })
   const [submitted, setSubmitted] = useState(false)
+  const sectionRef = useRef(null)
+  const titleRef = useRef(null)
+  const contactInfoRef = useRef(null)
+  const formRef = useRef(null)
 
   const translations = {
     zh: {
@@ -79,21 +87,78 @@ const Contact = ({ language }) => {
     },
   ]
 
+  useEffect(() => {
+    // Set initial state
+    gsap.set(titleRef.current, { opacity: 0, y: 30 })
+    gsap.set(contactInfoRef.current?.querySelectorAll('.contact-card'), { opacity: 0, y: 30 })
+    gsap.set(formRef.current, { opacity: 0, y: 30 })
+
+    // Animate title
+    gsap.to(titleRef.current, {
+      scrollTrigger: {
+        trigger: sectionRef.current,
+        start: 'top center+=100',
+        markers: false,
+      },
+      opacity: 1,
+      y: 0,
+      duration: 0.8,
+      ease: 'power2.out',
+    })
+
+    // Animate contact info cards
+    const contactCards = contactInfoRef.current?.querySelectorAll('.contact-card')
+    if (contactCards && contactCards.length > 0) {
+      contactCards.forEach((card, idx) => {
+        gsap.to(card, {
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top center+=100',
+            markers: false,
+          },
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          delay: 0.2 + idx * 0.1,
+          ease: 'power2.out',
+        })
+      })
+    }
+
+    // Animate form
+    gsap.to(formRef.current, {
+      scrollTrigger: {
+        trigger: sectionRef.current,
+        start: 'top center+=100',
+        markers: false,
+      },
+      opacity: 1,
+      y: 0,
+      duration: 0.8,
+      delay: 0.5,
+      ease: 'power2.out',
+    })
+
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill())
+    }
+  }, [])
+
   return (
-    <section id="contact" className="py-20 bg-white">
+    <section ref={sectionRef} id="contact" className="py-20 bg-white">
       <div className="container mx-auto px-4">
         {/* Title */}
-        <div className="text-center mb-16">
+        <div ref={titleRef} className="text-center mb-16">
           <h2 className="text-5xl font-bold text-gray-900 mb-4">{t.title}</h2>
           <p className="text-xl text-gray-600">{t.subtitle}</p>
         </div>
 
         {/* Contact Info */}
-        <div className="grid md:grid-cols-3 gap-8 mb-16">
+        <div ref={contactInfoRef} className="grid md:grid-cols-3 gap-8 mb-16">
           {contactInfo.map((info, idx) => {
             const Icon = info.icon
             return (
-              <div key={idx} className="bg-gray-50 p-8 rounded-lg text-center">
+              <div key={idx} className="contact-card bg-gray-50 p-8 rounded-lg text-center">
                 <Icon className="text-3xl text-gray-900 mb-4 mx-auto" />
                 <h3 className="text-xl font-bold text-gray-900 mb-2">{info.title}</h3>
                 <p className="text-gray-600">{info.content}</p>
@@ -103,7 +168,7 @@ const Contact = ({ language }) => {
         </div>
 
         {/* Contact Form */}
-        <div className="max-w-2xl mx-auto bg-gray-50 p-8 rounded-lg">
+        <div ref={formRef} className="max-w-2xl mx-auto bg-gray-50 p-8 rounded-lg">
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Name & Email */}
             <div className="grid md:grid-cols-2 gap-6">

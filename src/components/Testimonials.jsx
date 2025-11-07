@@ -1,7 +1,15 @@
-import { motion } from 'framer-motion'
+import { useRef, useEffect } from 'react'
+import gsap from 'gsap'
+import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { FaStar } from 'react-icons/fa'
 
+gsap.registerPlugin(ScrollTrigger)
+
 const Testimonials = ({ language }) => {
+  const sectionRef = useRef(null)
+  const titleRef = useRef(null)
+  const testimonialsRef = useRef(null)
+
   const translations = {
     zh: {
       title: '客戶評價',
@@ -45,54 +53,64 @@ const Testimonials = ({ language }) => {
     },
   ]
 
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.2,
-      },
-    },
-  }
+  useEffect(() => {
+    // Set initial state
+    gsap.set(titleRef.current, { opacity: 0, y: 30 })
+    gsap.set(testimonialsRef.current?.querySelectorAll('.testimonial-card'), { opacity: 0, y: 30 })
 
-  const itemVariants = {
-    hidden: { opacity: 0, y: 30 },
-    visible: {
+    // Animate title
+    gsap.to(titleRef.current, {
+      scrollTrigger: {
+        trigger: sectionRef.current,
+        start: 'top center+=100',
+        markers: false,
+      },
       opacity: 1,
       y: 0,
-      transition: { duration: 0.6 },
-    },
-  }
+      duration: 0.8,
+      ease: 'power2.out',
+    })
+
+    // Animate testimonial cards
+    const testimonialCards = testimonialsRef.current?.querySelectorAll('.testimonial-card')
+    if (testimonialCards && testimonialCards.length > 0) {
+      testimonialCards.forEach((card, idx) => {
+        gsap.to(card, {
+          scrollTrigger: {
+            trigger: sectionRef.current,
+            start: 'top center+=100',
+            markers: false,
+          },
+          opacity: 1,
+          y: 0,
+          duration: 0.6,
+          delay: 0.2 + idx * 0.1,
+          ease: 'power2.out',
+        })
+      })
+    }
+
+    return () => {
+      ScrollTrigger.getAll().forEach(trigger => trigger.kill())
+    }
+  }, [])
 
   return (
-    <section className="py-20 bg-white">
+    <section ref={sectionRef} className="py-20 bg-white">
       <div className="container mx-auto px-4">
         {/* Section Header */}
-        <motion.div
-          initial={{ opacity: 0, y: -20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-16"
-        >
+        <div ref={titleRef} className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold mb-4">{t.title}</h2>
           <p className="text-xl text-gray-600 mb-8">{t.subtitle}</p>
           <div className="w-20 h-1 bg-gradient-to-r from-purple-600 to-pink-600 mx-auto" />
-        </motion.div>
+        </div>
 
         {/* Testimonials Grid */}
-        <motion.div
-          variants={containerVariants}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: '-100px' }}
-          className="grid md:grid-cols-3 gap-8"
-        >
+        <div ref={testimonialsRef} className="grid md:grid-cols-3 gap-8">
           {testimonials.map((testimonial, idx) => (
-            <motion.div
+            <div
               key={idx}
-              variants={itemVariants}
-              whileHover={{ y: -10 }}
-              className="bg-gray-50 rounded-lg p-8 shadow-lg relative"
+              className="testimonial-card bg-gray-50 rounded-lg p-8 shadow-lg relative hover:shadow-xl transition-shadow"
             >
               {/* Star Rating */}
               <div className="flex gap-1 mb-4">
@@ -110,10 +128,7 @@ const Testimonials = ({ language }) => {
               {/* Client Info */}
               <div className="flex items-center gap-4">
                 {/* Avatar */}
-                <motion.div
-                  className={`w-12 h-12 rounded-full bg-gradient-to-br ${testimonial.avatar}`}
-                  whileHover={{ scale: 1.1 }}
-                />
+                <div className={`w-12 h-12 rounded-full bg-gradient-to-br ${testimonial.avatar}`} />
 
                 {/* Name & Role */}
                 <div>
@@ -121,9 +136,9 @@ const Testimonials = ({ language }) => {
                   <p className="text-sm text-gray-600">{testimonial.role}</p>
                 </div>
               </div>
-            </motion.div>
+            </div>
           ))}
-        </motion.div>
+        </div>
       </div>
     </section>
   )
