@@ -1,253 +1,247 @@
-import { useState, useRef, useEffect } from 'react'
-import { FaPhone, FaEnvelope, FaMapMarkerAlt } from 'react-icons/fa'
-import gsap from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-
-gsap.registerPlugin(ScrollTrigger)
+import { useScrollFadeIn } from '../hooks/useScrollFadeIn';
 
 const Contact = ({ language }) => {
-  const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    message: '',
-  })
-  const [submitted, setSubmitted] = useState(false)
-  const sectionRef = useRef(null)
-  const titleRef = useRef(null)
-  const contactInfoRef = useRef(null)
-  const formRef = useRef(null)
+  const [ref, isVisible] = useScrollFadeIn();
 
   const translations = {
     zh: {
       title: '聯絡我們',
-      subtitle: '有任何問題？我很樂意聽到您的聲音',
+      subtitle: '有任何拍攝需求？聯絡我們！',
       phone: '電話',
-      email: '郵件',
-      address: '地址',
-      form: {
-        name: '姓名',
-        email: '電子郵件',
-        phone: '電話號碼',
-        message: '訊息',
-        submit: '發送訊息',
-        success: '訊息已發送！我會盡快回覆您。',
-      },
+      facebook: 'Facebook',
+      instagram: 'Instagram',
+      studio: '工作室地址',
+      phoneValue: '+886-2-1234-5678',
+      facebookHandle: '@photographer.studio',
+      instagramHandle: '@photographer.studio',
+      studioValue: '台北市信義區光復路1號',
+      followUs: '跟我們聯繫'
     },
     en: {
-      title: 'Get In Touch',
-      subtitle: 'Have any questions? I\'d love to hear from you',
+      title: 'Contact Us',
+      subtitle: 'Any photography needs? Get in touch!',
       phone: 'Phone',
-      email: 'Email',
-      address: 'Address',
-      form: {
-        name: 'Your Name',
-        email: 'Your Email',
-        phone: 'Phone Number',
-        message: 'Message',
-        submit: 'Send Message',
-        success: 'Message sent! I\'ll get back to you soon.',
-      },
-    },
-  }
-
-  const t = translations[language]
-
-  const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData(prev => ({
-      ...prev,
-      [name]: value,
-    }))
-  }
-
-  const handleSubmit = (e) => {
-    e.preventDefault()
-    console.log(formData)
-    setSubmitted(true)
-    setTimeout(() => setSubmitted(false), 3000)
-    setFormData({ name: '', email: '', phone: '', message: '' })
-  }
-
-  const contactInfo = [
-    {
-      icon: FaPhone,
-      title: t.phone,
-      content: '+886 3 434 3838',
-    },
-    {
-      icon: FaEnvelope,
-      title: t.email,
-      content: 'photographer@example.com',
-    },
-    {
-      icon: FaMapMarkerAlt,
-      title: t.address,
-      content: language === 'zh' ? '台灣 台北市' : 'Taipei, Taiwan',
-    },
-  ]
-
-  useEffect(() => {
-    // Set initial state
-    gsap.set(titleRef.current, { opacity: 0, y: 30 })
-    gsap.set(contactInfoRef.current?.querySelectorAll('.contact-card'), { opacity: 0, y: 30 })
-    gsap.set(formRef.current, { opacity: 0, y: 30 })
-
-    // Animate title
-    gsap.to(titleRef.current, {
-      scrollTrigger: {
-        trigger: sectionRef.current,
-        start: 'top center+=100',
-        markers: false,
-      },
-      opacity: 1,
-      y: 0,
-      duration: 0.8,
-      ease: 'power2.out',
-    })
-
-    // Animate contact info cards
-    const contactCards = contactInfoRef.current?.querySelectorAll('.contact-card')
-    if (contactCards && contactCards.length > 0) {
-      contactCards.forEach((card, idx) => {
-        gsap.to(card, {
-          scrollTrigger: {
-            trigger: sectionRef.current,
-            start: 'top center+=100',
-            markers: false,
-          },
-          opacity: 1,
-          y: 0,
-          duration: 0.6,
-          delay: 0.2 + idx * 0.1,
-          ease: 'power2.out',
-        })
-      })
+      facebook: 'Facebook',
+      instagram: 'Instagram',
+      studio: 'Studio Address',
+      phoneValue: '+886-2-1234-5678',
+      facebookHandle: '@photographer.studio',
+      instagramHandle: '@photographer.studio',
+      studioValue: '1 Guangfu Road, Xinyi District, Taipei',
+      followUs: 'Connect With Us'
     }
+  };
 
-    // Animate form
-    gsap.to(formRef.current, {
-      scrollTrigger: {
-        trigger: sectionRef.current,
-        start: 'top center+=100',
-        markers: false,
-      },
-      opacity: 1,
-      y: 0,
-      duration: 0.8,
-      delay: 0.5,
-      ease: 'power2.out',
-    })
+  const t = translations[language] || translations.zh;
 
-    return () => {
-      ScrollTrigger.getAll().forEach(trigger => trigger.kill())
+  const contactMethods = [
+    {
+      icon: '📞',
+      label: t.phone,
+      value: t.phoneValue,
+      link: `tel:+886212345678`,
+      type: 'phone',
+      bgColor: 'from-pink-400 to-pink-500'
+    },
+    {
+      icon: '👍',
+      label: t.facebook,
+      value: t.facebookHandle,
+      link: 'https://facebook.com',
+      type: 'social',
+      bgColor: 'from-blue-400 to-blue-500'
+    },
+    {
+      icon: '📷',
+      label: t.instagram,
+      value: t.instagramHandle,
+      link: 'https://instagram.com',
+      type: 'social',
+      bgColor: 'from-purple-400 to-purple-500'
     }
-  }, [])
+  ];
 
   return (
-    <section ref={sectionRef} id="contact" className="py-20 bg-white">
+    <section id="contact" className="py-20 bg-gradient-to-b from-white to-gray-50">
       <div className="container mx-auto px-4">
-        {/* Title */}
-        <div ref={titleRef} className="text-center mb-16">
-          <h2 className="text-5xl font-bold text-gray-900 mb-4">{t.title}</h2>
-          <p className="text-xl text-gray-600">{t.subtitle}</p>
+        {/* Section Header */}
+        <div
+          ref={ref}
+          className={`text-center mb-20 transition-all duration-1000 ${
+            isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-10'
+          }`}
+        >
+          <h2 className="text-5xl font-bold text-gray-900 mb-4">
+            {t.title}
+          </h2>
+          <p className="text-xl text-gray-600 mb-8">
+            {t.subtitle}
+          </p>
+          <div className="w-24 h-1 bg-gradient-to-r from-amber-500 to-orange-500 mx-auto"></div>
         </div>
 
-        {/* Contact Info */}
-        <div ref={contactInfoRef} className="grid md:grid-cols-3 gap-8 mb-16">
-          {contactInfo.map((info, idx) => {
-            const Icon = info.icon
-            return (
-              <div key={idx} className="contact-card bg-gray-50 p-8 rounded-lg text-center">
-                <Icon className="text-3xl text-gray-900 mb-4 mx-auto" />
-                <h3 className="text-xl font-bold text-gray-900 mb-2">{info.title}</h3>
-                <p className="text-gray-600">{info.content}</p>
+        {/* Main Content */}
+        <div className="max-w-6xl mx-auto">
+          {/* Three Trapezoid Cards - Horizontal */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+            {contactMethods.map((method, index) => (
+              <div
+                key={index}
+                className={`transition-all duration-1000 transform ${
+                  isVisible
+                    ? 'opacity-100 translate-y-0'
+                    : 'opacity-0 translate-y-10'
+                }`}
+                style={{
+                  transitionDelay: isVisible ? `${index * 150}ms` : '0ms'
+                }}
+              >
+                {/* Trapezoid Card */}
+                <a
+                  href={method.link}
+                  {...(method.type === 'social' ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
+                  className={`group block h-80 bg-gradient-to-br ${method.bgColor} rounded-2xl shadow-lg hover:shadow-2xl hover:scale-105 transition-all duration-300 p-8 flex flex-col items-center justify-center text-white overflow-hidden relative`}
+                  style={{
+                    clipPath: 'polygon(5% 0%, 95% 0%, 100% 100%, 0% 100%)'
+                  }}
+                >
+                  {/* Hover Overlay */}
+                  <div className="absolute inset-0 bg-black opacity-0 group-hover:opacity-10 transition-opacity duration-300"></div>
+                  
+                  <div className="relative z-10 text-center">
+                    <div className="text-7xl mb-6 transform group-hover:scale-110 transition-transform duration-300">
+                      {method.icon}
+                    </div>
+                    <h3 className="text-3xl font-bold mb-4">
+                      {method.label}
+                    </h3>
+                    <p className="text-lg font-semibold opacity-90 break-words">
+                      {method.value}
+                    </p>
+                  </div>
+                </a>
               </div>
-            )
-          })}
-        </div>
+            ))}
+          </div>
 
-        {/* Contact Form */}
-        <div ref={formRef} className="max-w-2xl mx-auto bg-gray-50 p-8 rounded-lg">
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Name & Email */}
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-bold text-gray-900 mb-2">
-                  {t.form.name}
-                </label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
-                />
+          {/* Google Map Section */}
+          <div
+            className={`transition-all duration-1000 transform ${
+              isVisible
+                ? 'opacity-100 translate-y-0'
+                : 'opacity-0 translate-y-10'
+            }`}
+            style={{
+              transitionDelay: isVisible ? '450ms' : '0ms'
+            }}
+          >
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+              {/* Left - Address Info with Trapezoid */}
+              <div
+                className="bg-gradient-to-br from-amber-50 to-orange-50 p-8 md:p-12 rounded-2xl shadow-lg border-2 border-amber-200 flex flex-col justify-center overflow-hidden"
+                style={{
+                  clipPath: 'polygon(0% 5%, 100% 0%, 100% 95%, 0% 100%)'
+                }}
+              >
+                <h3 className="text-3xl font-bold text-gray-900 mb-8">
+                  {t.studio}
+                </h3>
+                <div className="space-y-6">
+                  <div className="flex items-start gap-4">
+                    <div className="text-5xl">📍</div>
+                    <div>
+                      <p className="text-gray-600 font-semibold mb-2">{t.studioValue}</p>
+                      <p className="text-gray-700">
+                        {language === 'zh' 
+                          ? '營業時間：週一至週五 10:00-18:00'
+                          : 'Hours: Mon-Fri 10:00-18:00'}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-4 mt-8 pt-8 border-t-2 border-amber-200">
+                    <div className="text-5xl">☎️</div>
+                    <div>
+                      <p className="text-gray-600 font-semibold mb-2">{language === 'zh' ? '直接撥號' : 'Call'}</p>
+                      <a 
+                        href={`tel:+886212345678`}
+                        className="text-amber-600 hover:text-amber-700 font-bold text-lg transition-colors"
+                      >
+                        +886-2-1234-5678
+                      </a>
+                    </div>
+                  </div>
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-bold text-gray-900 mb-2">
-                  {t.form.email}
-                </label>
-                <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
-                />
+
+              {/* Right - Google Map with Trapezoid */}
+              <div
+                className="rounded-2xl shadow-lg overflow-hidden h-96 lg:h-auto border-2 border-amber-200"
+                style={{
+                  clipPath: 'polygon(0% 0%, 100% 5%, 100% 100%, 0% 95%)'
+                }}
+              >
+                <iframe
+                  width="100%"
+                  height="100%"
+                  style={{ border: 0, minHeight: '400px' }}
+                  loading="lazy"
+                  allowFullScreen=""
+                  referrerPolicy="no-referrer-when-downgrade"
+                  src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3614.0499999999997!2d121.56391!3d25.033889!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3442a9d5a5a5a5a5%3A0x0!2sGuangfu%20Rd%2C%20Xinyi%20District%2C%20Taipei!5e0!3m2!1szh-TW!2stw!4v1234567890"
+                  title="Photographer Studio Location"
+                ></iframe>
               </div>
             </div>
+          </div>
 
-            {/* Phone */}
-            <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">
-                {t.form.phone}
-              </label>
-              <input
-                type="tel"
-                name="phone"
-                value={formData.phone}
-                onChange={handleChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
-              />
+          {/* Bottom CTA Section */}
+          <div
+            className={`mt-20 text-center transition-all duration-1000 transform ${
+              isVisible ? 'opacity-100 scale-100' : 'opacity-0 scale-95'
+            }`}
+            style={{
+              transitionDelay: isVisible ? '600ms' : '0ms'
+            }}
+          >
+            <h3 className="text-3xl font-bold text-gray-900 mb-4">
+              {t.followUs}
+            </h3>
+            <p className="text-lg text-gray-600 mb-8">
+              {language === 'zh' 
+                ? '立即跟我們聯繫，開始你的攝影旅程' 
+                : 'Get in touch now and start your photography journey'}
+            </p>
+            
+            {/* Social Media Icons */}
+            <div className="flex justify-center gap-6">
+              <a
+                href="https://facebook.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white flex items-center justify-center font-bold text-2xl shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-300"
+              >
+                f
+              </a>
+              <a
+                href="https://instagram.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white flex items-center justify-center font-bold text-2xl shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-300"
+              >
+                📷
+              </a>
+              <a
+                href="tel:+886212345678"
+                className="w-16 h-16 rounded-full bg-gradient-to-br from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white flex items-center justify-center font-bold text-2xl shadow-lg hover:shadow-xl transform hover:scale-110 transition-all duration-300"
+              >
+                ☎️
+              </a>
             </div>
-
-            {/* Message */}
-            <div>
-              <label className="block text-sm font-bold text-gray-900 mb-2">
-                {t.form.message}
-              </label>
-              <textarea
-                name="message"
-                value={formData.message}
-                onChange={handleChange}
-                required
-                rows="5"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-900"
-              />
-            </div>
-
-            {/* Submit */}
-            <button
-              type="submit"
-              className="w-full px-8 py-4 bg-gray-900 text-white rounded-lg font-bold hover:bg-gray-800 transition-colors"
-            >
-              {t.form.submit}
-            </button>
-
-            {/* Success Message */}
-            {submitted && (
-              <div className="p-4 bg-green-100 text-green-700 rounded-lg text-center font-medium">
-                {t.form.success}
-              </div>
-            )}
-          </form>
+          </div>
         </div>
       </div>
     </section>
-  )
-}
+  );
+};
 
-export default Contact
+export default Contact;

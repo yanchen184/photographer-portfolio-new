@@ -82,7 +82,7 @@ const Hero = ({ language }) => {
         {/* Left content - positioned over white diagonal sidebar area */}
         <div 
           className="relative flex flex-col justify-center pl-12 pr-8 py-20 z-20"
-          style={{ width: '35vw', maxWidth: '35vw' }}
+          style={{ width: '28vw', maxWidth: '28vw' }}
         >
           {/* Title */}
           <h1
@@ -128,7 +128,7 @@ const Hero = ({ language }) => {
         <div
           className="flex-1 h-screen relative overflow-hidden"
           style={{
-            marginLeft: 'calc(-35vw * 0.3)', // Image extends under the diagonal edge
+            marginLeft: 'calc(-28vw * 0.3)', // Image extends under the diagonal edge - adjusted for 28vw
           }}
         >
           {/* Image with background */}
